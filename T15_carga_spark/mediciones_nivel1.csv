@@ -1,0 +1,15 @@
+medicion,valor,donde_se_lee
+Memoria de almacenamiento del ejecutor (MiB),434.4,Executors
+Particiones de la refinada (Parquet),4,rdd.getNumPartitions()
+Particiones de la cruda (textFile),120,rdd.getNumPartitions()
+"Trabajos, etapas y tareas del count() sobre Parquet",1 · 1 · 4,Jobs
+Bytes de mezcla escritos con reduceByKey,9803,Stages
+Bytes de mezcla escritos con groupByKey,1867585,Stages
+Razon groupByKey / reduceByKey (bytes),190.5,Stages
+Registros de mezcla (reduceByKey y groupByKey),48 y 48,Stages
+Filas del agregado y lecturas por sector y dia,480 · 1200,reconciliacion
+Tareas de reduccion del groupBy de DataFrame (AQE activa),1,Stages
+"Tareas de reduccion con AQE desactivada y shuffle.partitions 200, 8 y 4",200 · 8 · 4,Stages
+Tiempo de las tres acciones sin cache (s),5.6,reloj de pared
+Tiempo de las tres acciones con cache (s),2.4,reloj de pared
+Memoria de la cache en Storage (MiB),9.4,Storage

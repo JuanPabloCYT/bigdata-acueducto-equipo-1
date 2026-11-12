@@ -1,0 +1,119 @@
+{
+  "frontera": "preparacion_a_consolidada",
+  "entrada": "datalake/refinada_spark",
+  "salida": "datalake/consolidada_elt/consumo_dia_sector",
+  "descripcion": "El producto de consumo cuenta todas las lecturas de la preparacion, separa confiables de no confiables y no pierde consumo.",
+  "columnas": [
+    {
+      "nombre": "fecha",
+      "tipo": "date",
+      "nulable": false
+    },
+    {
+      "nombre": "sector",
+      "tipo": "string",
+      "nulable": false
+    },
+    {
+      "nombre": "n_lecturas",
+      "tipo": "long",
+      "nulable": false
+    },
+    {
+      "nombre": "n_confiables",
+      "tipo": "long",
+      "nulable": false
+    },
+    {
+      "nombre": "n_no_confiables",
+      "tipo": "long",
+      "nulable": false
+    },
+    {
+      "nombre": "consumo_total_m3",
+      "tipo": "double",
+      "nulable": false,
+      "unidad": "m3"
+    },
+    {
+      "nombre": "consumo_confiable_m3",
+      "tipo": "double",
+      "nulable": true,
+      "unidad": "m3"
+    }
+  ],
+  "grano": [
+    "fecha",
+    "sector"
+  ],
+  "invariantes": [
+    {
+      "id": "PC1",
+      "tipo": "conteo_igual",
+      "descripcion": "La suma de n_lecturas es el numero de filas de la preparacion",
+      "a": {
+        "tabla": "preparacion",
+        "medida": "filas"
+      },
+      "b": {
+        "tabla": "producto",
+        "medida": "suma",
+        "columna": "n_lecturas"
+      }
+    },
+    {
+      "id": "PC2",
+      "tipo": "unico",
+      "tabla": "producto",
+      "descripcion": "Grano: una fila por (fecha, sector)",
+      "columnas": [
+        "fecha",
+        "sector"
+      ]
+    },
+    {
+      "id": "PC3",
+      "tipo": "sin_nulos",
+      "tabla": "producto",
+      "descripcion": "Las columnas no nulables del producto no tienen nulos",
+      "columnas": [
+        "fecha",
+        "sector",
+        "n_lecturas",
+        "n_confiables",
+        "n_no_confiables",
+        "consumo_total_m3"
+      ]
+    },
+    {
+      "id": "PC4",
+      "tipo": "compuesto",
+      "tabla": "producto",
+      "descripcion": "Confiables mas no confiables es el total de lecturas en cada fila",
+      "expresion": "n_confiables + n_no_confiables == n_lecturas"
+    },
+    {
+      "id": "PC5",
+      "tipo": "suma_igual",
+      "descripcion": "El producto no pierde consumo: suma de consumo_total_m3 igual al consumo de la preparacion",
+      "a": {
+        "tabla": "preparacion",
+        "medida": "suma",
+        "columna": "consumo_m3"
+      },
+      "b": {
+        "tabla": "producto",
+        "medida": "suma",
+        "columna": "consumo_total_m3"
+      },
+      "tolerancia": 1e-06
+    },
+    {
+      "id": "PC6",
+      "tipo": "compuesto",
+      "tabla": "producto",
+      "descripcion": "El consumo confiable nunca supera al total (con tolerancia de redondeo)",
+      "expresion": "consumo_confiable_m3.fillna(0) <= consumo_total_m3 + 1e-6"
+    }
+  ]
+}

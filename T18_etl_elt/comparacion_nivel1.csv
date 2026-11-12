@@ -1,0 +1,5 @@
+producto,enfoque,metrica_bytes,archivos_leidos,bytes_leidos,filas_leidas,filas_resultado,bytes_escritos,etapas,tareas,bytes_mezcla,filas_descartadas_visibles
+consumo,ELT,bytes_columnas_leidas,120,860254,576000,480,274370,3,20,53232,34632
+consumo,ETL,bytes_columnas_leidas,120,29614179,541368,480,6667,2,5,12907,0
+presion,ELT,bytes_columnas_leidas,120,236202,576000,1440,255328,3,20,110881,34632
+presion,ETL,bytes_columnas_leidas,120,29614179,541368,1440,5608,2,5,29355,0

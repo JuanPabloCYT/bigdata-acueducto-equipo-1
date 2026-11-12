@@ -1,0 +1,12 @@
+# Proyecto dbt del acueducto: el producto de consumo como modelo SQL versionado.
+#
+# dbt no es un motor: compila SQL con plantillas (Jinja), ordena los modelos segun sus dependencias
+# (ref) y ejecuta pruebas. Aqui el motor es DuckDB, que lee los mismos archivos Parquet del lago
+# sin levantar ningun servicio nuevo.
+name: acueducto
+version: "1.0.0"
+config-version: 2
+profile: acueducto
+model-paths: ["models"]
+test-paths: ["tests"]
+# las carpetas target y logs se fijan con las variables DBT_TARGET_PATH y DBT_LOG_PATH al ejecutar

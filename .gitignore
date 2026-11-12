@@ -1,0 +1,15 @@
+# Se regeneran con practica/generar_ampliacion_s15.py --equipo equipo-1 (no se versionan)
+datalake_equipo/cruda/
+datalake_equipo/refinada/
+# Copias de trabajo que crean el cuaderno y los scripts
+_deriva/
+_copias_reproceso/
+_regla/
+_diseno/
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+*.crc
+.DS_Store
+# Paquetes base del curso: no se suben al repositorio
+*.zip

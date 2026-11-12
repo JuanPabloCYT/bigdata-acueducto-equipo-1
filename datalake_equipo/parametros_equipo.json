@@ -1,0 +1,13 @@
+{
+  "equipo": "equipo-1",
+  "semilla_base": 42,
+  "etiqueta": "s15",
+  "medidores": 348,
+  "sector_dominante": "S-SUR",
+  "medidores_sector_dominante": 120,
+  "medidores_otro_sector": 76,
+  "fraccion_dominante": 0.3448,
+  "dias": 120,
+  "inicio": "2024-01-01",
+  "lecturas_totales": 1002240
+}

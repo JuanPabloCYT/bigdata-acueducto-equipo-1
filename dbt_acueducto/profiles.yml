@@ -1,0 +1,8 @@
+# Perfil de conexion de dbt: una base DuckDB en archivo (se recrea en cada ejecucion) y la ruta del lago.
+acueducto:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: /tmp/dbt_acueducto.duckdb
+      threads: 1

@@ -1,0 +1,41 @@
+== Physical Plan ==
+* HashAggregate (6)
++- Exchange (5)
+   +- * HashAggregate (4)
+      +- * Project (3)
+         +- * ColumnarToRow (2)
+            +- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [7]: [sector, quality_flag, fecha, nivel_presion, anio, mes, dia]
+Batched: true
+Location: InMemoryFileIndex [<ruta>]
+ReadSchema: struct<sector:string,quality_flag:string,fecha:date,nivel_presion:string>
+
+(2) ColumnarToRow [codegen]
+Input [7]: [sector, quality_flag, fecha, nivel_presion, anio, mes, dia]
+
+(3) Project [codegen]
+Output [7]: [sector, quality_flag, fecha, anio, mes, dia, coalesce(nivel_presion, sin_dato) AS _groupingexpression]
+Input [7]: [sector, quality_flag, fecha, nivel_presion, anio, mes, dia]
+
+(4) HashAggregate [codegen]
+Input [7]: [sector, quality_flag, fecha, anio, mes, dia, _groupingexpression]
+Keys [6]: [fecha, sector, _groupingexpression, anio, mes, dia]
+Functions [3]: [partial_count(1), partial_sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END)]
+Aggregate Attributes [3]: [count, sum, sum]
+Results [9]: [fecha, sector, _groupingexpression, anio, mes, dia, count, sum, sum]
+
+(5) Exchange
+Input [9]: [fecha, sector, _groupingexpression, anio, mes, dia, count, sum, sum]
+Arguments: hashpartitioning(fecha, sector, _groupingexpression, anio, mes, dia, 8), ENSURE_REQUIREMENTS
+
+(6) HashAggregate [codegen]
+Input [9]: [fecha, sector, _groupingexpression, anio, mes, dia, count, sum, sum]
+Keys [6]: [fecha, sector, _groupingexpression, anio, mes, dia]
+Functions [3]: [count(1), sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END), sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END)]
+Aggregate Attributes [3]: [count(1), sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END), sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END)]
+Results [9]: [fecha, sector, _groupingexpression AS nivel_presion, count(1) AS n_lecturas, sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END) AS n_confiables, sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END) AS n_no_confiables, anio, mes, dia]
+
+

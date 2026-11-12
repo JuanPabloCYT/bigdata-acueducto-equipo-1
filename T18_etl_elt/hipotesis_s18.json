@@ -1,0 +1,20 @@
+{
+  "elt_consumo": {
+    "clave": "bytes_columnas_producto1",
+    "texto": "Bytes de columnas que leera el producto de consumo ELT (fecha, sector, consumo_m3, quality_flag; suma de bytes comprimidos por columna de los 120 archivos)",
+    "valor": 1380000,
+    "marca_hipotesis": "2026-11-12T22:28:36.648051Z"
+  },
+  "elt_presion": {
+    "clave": "bytes_columnas_producto2",
+    "texto": "Bytes de columnas que leera el producto de presion ELT (fecha, sector, nivel_presion, quality_flag; sin consumo_m3, la columna mas pesada despues de presion_bar)",
+    "valor": 400000,
+    "marca_hipotesis": "2026-11-12T22:28:36.648058Z"
+  },
+  "reproceso": {
+    "clave": "particiones_reescritas",
+    "texto": "Particiones que reescribira el reproceso de la ventana de 6 dias con sobrescritura dinamica (una por dia)",
+    "valor": 6,
+    "marca_hipotesis": "2026-11-12T22:28:36.648060Z"
+  }
+}

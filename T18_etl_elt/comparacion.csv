@@ -1,0 +1,9 @@
+producto,enfoque,metrica_bytes,archivos_leidos,bytes_leidos,filas_leidas,filas_resultado,bytes_escritos,etapas,tareas,bytes_mezcla,filas_descartadas_visibles
+ambos,ETL-una-pasada,bytes_columnas_leidas,120,54371830,942031,1920,12996,4,15,77546,0
+consumo,ELT,bytes_columnas_leidas,120,1382744,1002240,480,275768,3,20,56281,60209
+consumo,ETL,bytes_columnas_leidas,120,54371830,942031,480,6852,2,6,14059,0
+consumo,ETL-parquet,bytes_columnas_leidas,120,1382744,1002240,480,7007,2,5,13537,0
+consumo,ETL-ventana,bytes_columnas_leidas,6,2718973,47047,24,8150,3,19,4018,0
+presion,ELT,bytes_columnas_leidas,120,401505,1002240,1440,253897,3,20,117378,60209
+presion,ETL,bytes_columnas_leidas,120,54371830,942031,1440,6238,2,6,31094,0
+presion,ETL-parquet,bytes_columnas_leidas,120,2281385,1002240,1440,6238,2,5,30133,0

@@ -1,0 +1,7 @@
+consulta,partition_filters,pushed_filters,read_schema,archivos_leidos,filas_salida_escaneo,estrategia_union,n_exchange
+A,"[isnotnull(anio), isnotnull(mes), isnotnull(dia), (anio = 2024), (mes = 02), (dia = 15)]",,"struct<sector:string,consumo_m3:double>",1,4800,,1
+A-fecha,,"[IsNotNull(fecha), EqualTo(fecha,2024-02-15)]","struct<sector:string,consumo_m3:double,fecha:date>",120,4800,,1
+B,,"[IsNotNull(presion_bar), GreaterThan(presion_bar,3.5)]","struct<sector:string,consumo_m3:double,presion_bar:double>",120,576000,,1
+C,,"[IsNotNull(es_confiable), EqualTo(es_confiable,true), IsNotNull(meter_id)]","struct<meter_id:string,consumo_m3:double,es_confiable:boolean>",120,576000,BroadcastHashJoin,1
+C-forzada,,"[IsNotNull(es_confiable), EqualTo(es_confiable,true), IsNotNull(meter_id)]","struct<meter_id:string,consumo_m3:double,es_confiable:boolean>",120,576000,SortMergeJoin,3
+C-aqe,,"[IsNotNull(es_confiable), EqualTo(es_confiable,true), IsNotNull(meter_id)]","struct<meter_id:string,consumo_m3:double,es_confiable:boolean>",120,576000,BroadcastHashJoin,1

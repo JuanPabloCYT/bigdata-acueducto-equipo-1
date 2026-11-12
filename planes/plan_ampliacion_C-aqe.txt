@@ -1,0 +1,158 @@
+== Physical Plan ==
+AdaptiveSparkPlan (26)
++- == Final Plan ==
+   * HashAggregate (16)
+   +- AQEShuffleRead (15)
+      +- ShuffleQueryStage (14), Statistics(sizeInBytes=512.0 B, rowCount=16)
+         +- Exchange (13)
+            +- * HashAggregate (12)
+               +- * Project (11)
+                  +- * BroadcastHashJoin Inner BuildRight (10)
+                     :- * Project (4)
+                     :  +- * Filter (3)
+                     :     +- * ColumnarToRow (2)
+                     :        +- Scan parquet  (1)
+                     +- BroadcastQueryStage (9), Statistics(sizeInBytes=4.0 MiB, rowCount=348)
+                        +- BroadcastExchange (8)
+                           +- * Filter (7)
+                              +- * ColumnarToRow (6)
+                                 +- Scan parquet  (5)
++- == Initial Plan ==
+   HashAggregate (25)
+   +- Exchange (24)
+      +- HashAggregate (23)
+         +- Project (22)
+            +- BroadcastHashJoin Inner BuildRight (21)
+               :- Project (18)
+               :  +- Filter (17)
+               :     +- Scan parquet  (1)
+               +- BroadcastExchange (20)
+                  +- Filter (19)
+                     +- Scan parquet  (5)
+
+
+(1) Scan parquet 
+Output [6]: [meter_id, consumo_m3, es_confiable, anio, mes, dia]
+Batched: true
+Location: InMemoryFileIndex [<ruta>]
+PushedFilters: [IsNotNull(es_confiable), EqualTo(es_confiable,true), IsNotNull(meter_id)]
+ReadSchema: struct<meter_id:string,consumo_m3:double,es_confiable:boolean>
+
+(2) ColumnarToRow [codegen]
+Input [6]: [meter_id, consumo_m3, es_confiable, anio, mes, dia]
+
+(3) Filter [codegen]
+Input [6]: [meter_id, consumo_m3, es_confiable, anio, mes, dia]
+Condition : ((isnotnull(es_confiable) AND es_confiable) AND isnotnull(meter_id))
+
+(4) Project [codegen]
+Output [2]: [meter_id, consumo_m3]
+Input [6]: [meter_id, consumo_m3, es_confiable, anio, mes, dia]
+
+(5) Scan parquet 
+Output [2]: [meter_id, estrato]
+Batched: true
+Location: InMemoryFileIndex [<ruta>]
+PushedFilters: [IsNotNull(meter_id)]
+ReadSchema: struct<meter_id:string,estrato:int>
+
+(6) ColumnarToRow [codegen]
+Input [2]: [meter_id, estrato]
+
+(7) Filter [codegen]
+Input [2]: [meter_id, estrato]
+Condition : isnotnull(meter_id)
+
+(8) BroadcastExchange
+Input [2]: [meter_id, estrato]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false)
+
+(9) BroadcastQueryStage
+Output [2]: [meter_id, estrato]
+Arguments: 0
+
+(10) BroadcastHashJoin [codegen]
+Left keys [1]: [meter_id]
+Right keys [1]: [meter_id]
+Join type: Inner
+Join condition: None
+
+(11) Project [codegen]
+Output [2]: [consumo_m3, estrato]
+Input [4]: [meter_id, consumo_m3, meter_id, estrato]
+
+(12) HashAggregate [codegen]
+Input [2]: [consumo_m3, estrato]
+Keys [1]: [estrato]
+Functions [2]: [partial_count(1), partial_sum(consumo_m3)]
+Aggregate Attributes [2]: [count, sum]
+Results [3]: [estrato, count, sum]
+
+(13) Exchange
+Input [3]: [estrato, count, sum]
+Arguments: hashpartitioning(estrato, 8), ENSURE_REQUIREMENTS
+
+(14) ShuffleQueryStage
+Output [3]: [estrato, count, sum]
+Arguments: 1
+
+(15) AQEShuffleRead
+Input [3]: [estrato, count, sum]
+Arguments: coalesced
+
+(16) HashAggregate [codegen]
+Input [3]: [estrato, count, sum]
+Keys [1]: [estrato]
+Functions [2]: [count(1), sum(consumo_m3)]
+Aggregate Attributes [2]: [count(1), sum(consumo_m3)]
+Results [3]: [estrato, count(1) AS n_lecturas, sum(consumo_m3) AS consumo_total_m3]
+
+(17) Filter
+Input [6]: [meter_id, consumo_m3, es_confiable, anio, mes, dia]
+Condition : ((isnotnull(es_confiable) AND es_confiable) AND isnotnull(meter_id))
+
+(18) Project
+Output [2]: [meter_id, consumo_m3]
+Input [6]: [meter_id, consumo_m3, es_confiable, anio, mes, dia]
+
+(19) Filter
+Input [2]: [meter_id, estrato]
+Condition : isnotnull(meter_id)
+
+(20) BroadcastExchange
+Input [2]: [meter_id, estrato]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false)
+
+(21) BroadcastHashJoin
+Left keys [1]: [meter_id]
+Right keys [1]: [meter_id]
+Join type: Inner
+Join condition: None
+
+(22) Project
+Output [2]: [consumo_m3, estrato]
+Input [4]: [meter_id, consumo_m3, meter_id, estrato]
+
+(23) HashAggregate
+Input [2]: [consumo_m3, estrato]
+Keys [1]: [estrato]
+Functions [2]: [partial_count(1), partial_sum(consumo_m3)]
+Aggregate Attributes [2]: [count, sum]
+Results [3]: [estrato, count, sum]
+
+(24) Exchange
+Input [3]: [estrato, count, sum]
+Arguments: hashpartitioning(estrato, 8), ENSURE_REQUIREMENTS
+
+(25) HashAggregate
+Input [3]: [estrato, count, sum]
+Keys [1]: [estrato]
+Functions [2]: [count(1), sum(consumo_m3)]
+Aggregate Attributes [2]: [count(1), sum(consumo_m3)]
+Results [3]: [estrato, count(1) AS n_lecturas, sum(consumo_m3) AS consumo_total_m3]
+
+(26) AdaptiveSparkPlan
+Output [3]: [estrato, n_lecturas, consumo_total_m3]
+Arguments: isFinalPlan=true
+
+

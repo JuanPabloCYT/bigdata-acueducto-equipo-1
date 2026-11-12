@@ -1,0 +1,24 @@
+Base: acueducto_equipo_1 · API: http://127.0.0.1:8014 · t0=1.0 s, t_max=30.0 s, max_intentos=6
+Antes:          stg_estado_medidor=0 · bitacora_ingesta_api=0
+Corrida 1: COMPLETA · paginas incompletas [] · 5.88 s
+ pagina  intentos  codigo_final resultado_final
+      1         1           200           EXITO
+      2         1           200           EXITO
+      3         1           200           EXITO
+      4         2           200           EXITO
+      5         1           200           EXITO
+      6         1           200           EXITO
+      7         2           200           EXITO
+Tras corrida 1: stg_estado_medidor=99 · bitacora_ingesta_api=9
+Corrida 2: COMPLETA · paginas incompletas [] · 7.51 s
+ pagina  intentos  codigo_final resultado_final
+      1         2           200           EXITO
+      2         2           200           EXITO
+      3         2           200           EXITO
+      4         1           200           EXITO
+      5         1           200           EXITO
+      6         1           200           EXITO
+      7         1           200           EXITO
+Tras corrida 2: stg_estado_medidor=99 · bitacora_ingesta_api=19
+stg_estado_medidor 99 -> 99 (estado vigente, no crece) · bitacora_ingesta_api 9 -> 19 (auditoria, crece)
+RESULTADO: OK

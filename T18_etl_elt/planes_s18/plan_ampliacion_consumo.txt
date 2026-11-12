@@ -1,0 +1,36 @@
+== Physical Plan ==
+* HashAggregate (5)
++- Exchange (4)
+   +- * HashAggregate (3)
+      +- * ColumnarToRow (2)
+         +- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [7]: [sector, consumo_m3, quality_flag, fecha, anio, mes, dia]
+Batched: true
+Location: InMemoryFileIndex [<ruta>]
+ReadSchema: struct<sector:string,consumo_m3:double,quality_flag:string,fecha:date>
+
+(2) ColumnarToRow [codegen]
+Input [7]: [sector, consumo_m3, quality_flag, fecha, anio, mes, dia]
+
+(3) HashAggregate [codegen]
+Input [7]: [sector, consumo_m3, quality_flag, fecha, anio, mes, dia]
+Keys [5]: [fecha, sector, anio, mes, dia]
+Functions [5]: [partial_count(1), partial_sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END), partial_sum(consumo_m3), partial_sum(CASE WHEN (quality_flag = OK) THEN consumo_m3 END)]
+Aggregate Attributes [5]: [count, sum, sum, sum, sum]
+Results [10]: [fecha, sector, anio, mes, dia, count, sum, sum, sum, sum]
+
+(4) Exchange
+Input [10]: [fecha, sector, anio, mes, dia, count, sum, sum, sum, sum]
+Arguments: hashpartitioning(fecha, sector, anio, mes, dia, 8), ENSURE_REQUIREMENTS
+
+(5) HashAggregate [codegen]
+Input [10]: [fecha, sector, anio, mes, dia, count, sum, sum, sum, sum]
+Keys [5]: [fecha, sector, anio, mes, dia]
+Functions [5]: [count(1), sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END), sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END), sum(consumo_m3), sum(CASE WHEN (quality_flag = OK) THEN consumo_m3 END)]
+Aggregate Attributes [5]: [count(1), sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END), sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END), sum(consumo_m3), sum(CASE WHEN (quality_flag = OK) THEN consumo_m3 END)]
+Results [10]: [fecha, sector, count(1) AS n_lecturas, sum(CASE WHEN (quality_flag = OK) THEN 1 ELSE 0 END) AS n_confiables, sum(CASE WHEN (quality_flag = OK) THEN 0 ELSE 1 END) AS n_no_confiables, sum(consumo_m3) AS consumo_total_m3, sum(CASE WHEN (quality_flag = OK) THEN consumo_m3 END) AS consumo_confiable_m3, anio, mes, dia]
+
+

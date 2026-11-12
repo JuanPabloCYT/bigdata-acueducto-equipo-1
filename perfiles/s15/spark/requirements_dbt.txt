@@ -1,0 +1,4 @@
+# Capa opcional de dbt (Nivel 3b). Versiones fijadas: al instalar la serie 1.12 de dbt-core se midio un analizador de unos 166 MiB que esta practica no necesita.
+dbt-core==1.11.16
+dbt-duckdb==1.11.1
+duckdb==2.0.0

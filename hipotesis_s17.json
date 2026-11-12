@@ -1,0 +1,38 @@
+{
+  "A": {
+    "texto": "Filtra por anio, mes y dia, que son columnas de la RUTA: PartitionFilters poda 119 de las 120 carpetas y se abre solo el archivo del dia.",
+    "archivos_leidos": 1,
+    "estrategia_union": null,
+    "marca_hipotesis": "2026-11-12T22:17:34.046087Z"
+  },
+  "A-fecha": {
+    "texto": "fecha esta DENTRO del archivo, no en la ruta: no hay PartitionFilters, el filtro solo se empuja al lector (PushedFilters), asi que se abren los 120 archivos para mirar sus estadisticas, aunque devuelva las mismas filas que A.",
+    "archivos_leidos": 120,
+    "estrategia_union": null,
+    "marca_hipotesis": "2026-11-12T22:17:34.046096Z"
+  },
+  "B": {
+    "texto": "presion_bar no es columna de particion y no esta ordenada: cada archivo diario tiene presiones por encima y por debajo de 3,5 bar (max > 3,5), asi que el predicado empujado no puede descartar ningun archivo: 120.",
+    "archivos_leidos": 120,
+    "estrategia_union": null,
+    "marca_hipotesis": "2026-11-12T22:17:34.046099Z"
+  },
+  "C": {
+    "texto": "Lee toda la capa (es_confiable no es particion): 120 archivos. La referencia de medidores (348 filas) estimada en KiB queda bajo el umbral de 10 MiB: Catalyst la difunde (BroadcastHashJoin) y no mezcla las lecturas.",
+    "archivos_leidos": 120,
+    "estrategia_union": "BroadcastHashJoin",
+    "marca_hipotesis": "2026-11-12T22:17:34.046101Z"
+  },
+  "C-forzada": {
+    "texto": "Mismos 120 archivos; con el umbral en -1 no puede difundir: repartira ambos lados por meter_id y los ordenara (SortMergeJoin), con al menos 2 Sort y 3 Exchange y muchos mas bytes de mezcla que C.",
+    "archivos_leidos": 120,
+    "estrategia_union": "SortMergeJoin",
+    "marca_hipotesis": "2026-11-12T22:17:34.046103Z"
+  },
+  "C-aqe": {
+    "texto": "Mismos 120 archivos; con ejecucion adaptativa el plan inicial ya difunde la referencia pequena, asi que el plan final tambien sera BroadcastHashJoin (AQE solo coalesce las particiones de la agregacion).",
+    "archivos_leidos": 120,
+    "estrategia_union": "BroadcastHashJoin",
+    "marca_hipotesis": "2026-11-12T22:17:34.046104Z"
+  }
+}

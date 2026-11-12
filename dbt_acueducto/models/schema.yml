@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: consumo_dia_sector
+    description: "Consumo y lecturas por dia y sector; separa confiables de no confiables sin descartar."
+    columns:
+      - name: fecha
+        tests: [not_null]
+      - name: sector
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['S-NORTE', 'S-SUR', 'S-ESTE', 'S-OESTE']
+      - name: n_lecturas
+        tests: [not_null]
+      - name: consumo_total_m3
+        tests: [not_null]

@@ -1,0 +1,34 @@
+{
+  "frontera": "cruda_a_preparacion",
+  "entrada": "datalake/cruda/acueducto",
+  "salida": "datalake/refinada_spark",
+  "descripcion": "La preparacion debe contener exactamente lo que llego a la cruda: mismas filas, mismo consumo por dia y sector, y ninguna lectura ilegible convertida en nulo.",
+  "columnas": [
+    {"nombre": "meter_id", "tipo": "string", "nulable": false},
+    {"nombre": "timestamp", "tipo": "timestamp", "nulable": false},
+    {"nombre": "sector", "tipo": "string", "nulable": false},
+    {"nombre": "consumo_m3", "tipo": "double", "nulable": false, "unidad": "m3"},
+    {"nombre": "presion_bar", "tipo": "double", "nulable": true, "unidad": "bar"},
+    {"nombre": "quality_flag", "tipo": "string", "nulable": false}
+  ],
+  "grano": ["meter_id", "timestamp"],
+  "invariantes": [
+    {"id": "C1", "tipo": "columnas_requeridas", "tabla": "preparacion",
+     "descripcion": "Las seis columnas de la cruda aparecen primero y en el mismo orden",
+     "columnas": ["meter_id", "timestamp", "sector", "consumo_m3", "presion_bar", "quality_flag"]},
+    {"id": "C2", "tipo": "valores_en", "tabla": "preparacion", "columna": "quality_flag",
+     "descripcion": "La bandera de calidad solo toma valores conocidos",
+     "permitidos": ["OK", "ESTIMADO", "SIN_SENAL"]},
+    {"id": "C3", "tipo": "sin_nulos", "tabla": "preparacion", "columnas": ["meter_id", "timestamp", "consumo_m3"],
+     "descripcion": "Ninguna lectura pierde su medidor, su marca temporal ni su consumo"},
+    {"id": "C4", "tipo": "conteo_igual",
+     "descripcion": "Las filas de la preparacion son las filas de la cruda",
+     "a": {"tabla": "preparacion", "medida": "filas"}, "b": {"tabla": "control", "medida": "suma", "columna": "n_lecturas"}},
+    {"id": "C5", "tipo": "suma_igual", "tolerancia": 1e-6,
+     "descripcion": "El consumo total de la preparacion es el de la cruda",
+     "a": {"tabla": "preparacion", "medida": "suma", "columna": "consumo_m3"}, "b": {"tabla": "control", "medida": "suma", "columna": "consumo_total_m3"}},
+    {"id": "C6", "tipo": "igual_por_grupo", "a": "preparacion_por_grupo", "b": "control", "clave": ["fecha", "sector"],
+     "descripcion": "Filas y consumo por dia y sector coinciden con la cruda",
+     "columnas": {"n_lecturas": 0, "consumo_total_m3": 1e-6}}
+  ]
+}

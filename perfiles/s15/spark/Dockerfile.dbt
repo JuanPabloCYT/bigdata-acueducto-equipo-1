@@ -1,0 +1,6 @@
+# Capa opcional de dbt-core con DuckDB sobre la imagen del servicio (Nivel 3b).
+FROM acueducto-spark:s15
+USER root
+COPY requirements_dbt.txt /tmp/requirements_dbt.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_dbt.txt
+USER spark

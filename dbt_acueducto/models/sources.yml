@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: lago
+    description: "Capas del lago del acueducto leidas como archivos Parquet."
+    tables:
+      - name: preparacion
+        description: "refinada_spark/: todas las lecturas con su bandera de calidad."
+        meta:
+          # las columnas de la ruta (anio, mes, dia) se leen como texto con ceros, igual que en Spark;
+          # la variable de entorno LAGO apunta a datalake (por omision) o a la carpeta de la ampliacion
+          external_location: >-
+            read_parquet('{{ env_var("LAGO", "/proyecto/datalake") }}/refinada_spark/*/*/*/*.parquet',
+            hive_partitioning=true, hive_types_autocast=false)

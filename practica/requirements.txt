@@ -1,0 +1,37 @@
+# Practica de procesamiento con Spark sobre el lago del acueducto (perfiles s15, s16 y s17).
+# Instalacion (Python 3.11, de preferencia dentro de un entorno virtual):
+#   pip install -r requirements.txt
+#
+# Ruta principal: no necesitan instalar nada de esto en su equipo. El servicio spark del
+# paquete (docker compose --profile s17) trae Python 3.11, Java 11, PySpark, pandas, pyarrow
+# y JupyterLab con estas mismas versiones. Este archivo sirve para (a) generar su ampliacion
+# de datos fuera del contenedor y (b) la ruta de respaldo sin contenedor.
+#
+# Ruta de respaldo sin contenedor: ademas de este archivo necesitan Java 11 (OpenJDK 11)
+# instalado y en el PATH. En Windows, Spark puede fallar al ESCRIBIR archivos Parquet si
+# no encuentra winutils.exe y hadoop.dll; ver la guia (seccion 1.2) y .env.ejemplo. Las
+# funciones propias de la practica (UDF) exigen ademas que PYSPARK_PYTHON apunte al mismo
+# interprete de Python del entorno virtual.
+#
+# PySpark 3.5.3 admite Java 8, 11 y 17; se fija 3.5.3 para que todos los equipos midan
+# con el mismo motor. pandas y pyarrow son necesarios para la funcion vectorizada
+# (Pandas UDF) y para leer la capa nueva con un lector independiente de Spark.
+# Despues de instalar, abran el cuaderno con:  jupyter lab
+pyspark==3.5.3
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==15.0.2
+jupyterlab==4.4.10
+ipykernel==6.30.1
+
+# Dependencias de las practicas anteriores del proyecto (PostgreSQL, conector de la API
+# simulada y captura de cambios). psycopg2-binary tambien lo usa pipeline/verificar_etapa.py
+# para las etapas t12 a t14; si no esta instalado, ese script ejecuta psql dentro del contenedor.
+sqlalchemy==2.0.43
+psycopg2-binary==2.9.13
+duckdb==1.5.5
+duckdb-engine==0.17.0
+fastapi==0.115.6
+uvicorn==0.34.0
+requests==2.32.5
+tenacity==9.0.0

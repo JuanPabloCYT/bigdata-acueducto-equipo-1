@@ -1,0 +1,136 @@
+# docker-compose.yml del proyecto integrador del acueducto.
+#
+# Que hace: define los servicios del proyecto y los agrupa en "perfiles".
+# Un perfil es una etiqueta; "docker compose --profile s12 up -d" levanta SOLO
+# los servicios que declaran el perfil s12. Se usa asi para no encender todo
+# el proyecto a la vez: cada practica arranca unicamente lo que necesita y
+# el consumo total de memoria se mantiene por debajo de 8 GB en un portatil.
+#
+# Servicios del proyecto:
+#   - postgres (perfil s12): PostgreSQL 16 con el modelo dimensional del acueducto,
+#     las tablas de las ingestas y de la captura de cambios ya cargadas.
+#   - spark (perfiles s15, s16, s17 y s18): un entorno con Python 3.11, Java 11, PySpark 3.5.3,
+#     pandas, pyarrow y JupyterLab para cargar, transformar y analizar el lago del
+#     acueducto con Spark en modo local. Es UN SOLO servicio compartido por cuatro
+#     practicas: la carga con RDD (perfil s15), la capa refinada con DataFrames
+#     (perfil s16), la lectura de planes de ejecucion (perfil s17) y la comparacion
+#     entre transformar antes o despues de cargar (perfil s18). Con cualquiera
+#     de los cuatro perfiles se levanta el mismo contenedor y la misma imagen; los
+#     comandos se dirigen al servicio ("exec spark"), no al nombre del contenedor.
+#     No usa PostgreSQL: lee los archivos de datalake/ y de datalake_equipo/.
+#     Apaguen el perfil s12 antes de levantar el s15, el s16, el s17 o el s18 (y al reves):
+#     asi cada practica usa solo la memoria que necesita.
+#
+# Como usarlo (desde la carpeta donde extrajeron el paquete):
+#   docker compose --profile s12 up -d     # arranca el servicio
+#   docker compose --profile s12 ps        # debe mostrar "healthy"
+#   docker compose --profile s12 down      # apaga el servicio y conserva los datos
+#   docker compose --profile s12 down -v   # apaga y BORRA los datos (empezar de cero)
+#
+# Perfiles s15, s16, s17 y s18 (Spark): el servicio y la imagen son los mismos.
+#   docker compose --profile s18 build     # construye la imagen una sola vez (varios minutos);
+#                                          # si ya la construyeron antes, Docker la reutiliza
+#   docker compose --profile s18 up -d     # arranca el servicio
+#   docker compose --profile s18 exec spark python pipeline/elt_s18.py --help
+#   docker compose --profile s18 down      # apaga el servicio (los archivos de datalake/ se conservan)
+# Con los perfiles s15, s16 o s17 el contenedor es el mismo: "docker compose --profile s17 up -d" y
+# "docker compose --profile s18 down" actuan sobre el mismo servicio.
+# JupyterLab queda en http://localhost:8888 y la interfaz de Spark en
+# http://localhost:4040 (si otro proceso de Python ya la ocupa, el siguiente usa el 4041;
+# dentro de un mismo proceso, getOrCreate reutiliza la sesion y su interfaz).
+#
+# Para revisar la sintaxis del archivo usen SIEMPRE el perfil:
+#   docker compose --profile s12 config
+#   docker compose --profile s15 config
+#   docker compose --profile s16 config
+#   docker compose --profile s17 config
+#   docker compose --profile s18 config
+# Sin --profile, "docker compose config" muestra "services: {}" porque
+# los servicios solo existen dentro de su perfil; no significa que el archivo
+# este mal.
+#
+# Este archivo debe estar junto a la carpeta perfiles/ del paquete: de ahi
+# toma los scripts SQL de inicializacion. Si lo copian solo, el contenedor
+# arranca vacio.
+#
+# Credenciales: postgres / postgres son exclusivamente didacticas y el puerto
+# 5432 solo se expone en su propio equipo. En un despliegue real las
+# credenciales viven en un gestor de secretos, nunca en el archivo.
+services:
+  postgres:
+    image: postgres:16
+    container_name: acueducto_postgres_s12
+    profiles: ["s12"]  # perfil de esta practica
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: acueducto
+    ports:
+      - "5432:5432"  # si ya tienen un PostgreSQL local en 5432, detenganlo o cambien el primer numero
+    volumes:
+      # Volumen con nombre: PostgreSQL guarda aqui sus datos y sobreviven a
+      # "down". Si necesitan reiniciar desde cero (por ejemplo, al usar un
+      # paquete nuevo), ejecuten antes "docker compose --profile s12 down -v".
+      - s12_postgres_data:/var/lib/postgresql/data
+      # Los .sql de esta carpeta se ejecutan UNA sola vez, en orden
+      # alfabetico, la primera vez que el volumen esta vacio: 01 crea y carga
+      # el modelo dimensional, 02 crea y carga las tablas de ingesta de lecturas,
+      # 03 crea y carga las tablas del estado de medidores y 04 crea las tablas de
+      # la captura de cambios (el maestro de suscriptores ya poblado). Por eso el
+      # primer arranque tarda mas (de unos segundos a un par de minutos segun el
+      # equipo) y los siguientes son casi inmediatos.
+      - ./perfiles/s12/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # "healthy" significa que PostgreSQL ya acepta conexiones a la base
+      # acueducto, es decir, que termino de cargar los datos iniciales. Se
+      # consulta por TCP (-h 127.0.0.1) a proposito: mientras se ejecutan los
+      # .sql de inicializacion, PostgreSQL solo atiende por un socket interno
+      # y la consulta por TCP falla, asi "healthy" no aparece antes de tiempo.
+      # start_period da un margen inicial: durante esos segundos un fallo de la
+      # prueba no cuenta como intento fallido, porque cargar las 576 000
+      # lecturas del primer arranque puede tardar; el servicio solo se marca
+      # "unhealthy" si sigue sin responder despues de agotar ese margen y los
+      # reintentos.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d acueducto"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+
+  spark:
+    build:
+      context: ./perfiles/s15/spark   # el Dockerfile y sus dependencias fijadas
+    image: acueducto-spark:s15
+    container_name: acueducto_spark_s15
+    # El servicio pertenece a los cuatro perfiles. El nombre del contenedor y el de la imagen
+    # conservan el sufijo s15 para no obligar a reconstruir la imagen ni a cambiar los
+    # comandos que ya usan: por eso los comandos se dirigen al servicio (spark).
+    profiles: ["s15", "s16", "s17", "s18"]
+    # Tope de memoria del contenedor. Spark en modo local corre en una sola JVM
+    # mas un proceso de Python por cada tarea simultanea; con 3 GiB el servicio
+    # cabe junto al sistema y al navegador en un computador de 8 GB. Si el
+    # contenedor supera el tope, Docker lo detiene (estado "OOMKilled").
+    mem_limit: 3g
+    init: true   # recoge los procesos de Python de trabajo que terminan
+    ports:
+      # Los tres puertos se publican solo en su propio equipo (127.0.0.1).
+      # Si uno esta ocupado, cambien el numero que sigue a "127.0.0.1:" (por ejemplo,
+      # "127.0.0.1:8890:8888"); el numero de la derecha es el del contenedor y no cambia.
+      - "127.0.0.1:8888:8888"   # JupyterLab
+      - "127.0.0.1:4040:4040"   # interfaz de Spark de la primera sesion
+      - "127.0.0.1:4041:4041"   # interfaz de una segunda sesion, si la abren
+    volumes:
+      # Todo el paquete se monta en /proyecto: ahi estan datalake/ (lago base),
+      # datalake_equipo/ (su ampliacion), pipeline/ y practica/. Lo que el
+      # contenedor escriba (consolidada_spark/, refinada_spark/ y las bitacoras) queda en su equipo.
+      - ./:/proyecto
+    healthcheck:
+      # "healthy" significa que JupyterLab ya responde.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8888/api')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+volumes:
+  s12_postgres_data:
