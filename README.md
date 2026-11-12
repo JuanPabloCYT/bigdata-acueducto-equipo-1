@@ -36,7 +36,7 @@ Quien lo clone debe poder levantar la última etapa **sin preguntarle nada al eq
 | Memoria | 8 GB de RAM en el equipo. El servicio `spark` está limitado a 3 GiB; el pico medido con el cuaderno completo es de 2,2 a 2,3 GiB. **Una sola JVM de Spark a la vez.** |
 | Software | Docker con Compose v2 y Git. Python 3.11, Java 11, PySpark 3.5.3, pandas, pyarrow y JupyterLab ya vienen en la imagen. Python 3 en el computador solo se necesita para las verificaciones de T12 a T14 |
 | Disco | Unos 3 GB libres (imagen, repositorio y ampliación) |
-| Tiempo | Paso 1: de 1 a 3 minutos. Verificación: menos de 1 minuto. Si hay que construir la imagen, sume unos 3 minutos |
+| Tiempo | Paso 1: de 1 a 3 minutos. Paso 2: unos 70 segundos. Verificación: menos de 1 minuto. Desde un clon limpio, con la imagen ya construida, la secuencia completa tomó unos 126 s. Si hay que construir la imagen, sume unos 3 minutos |
 
 ## 2. De dónde sale `datalake/`
 
@@ -63,7 +63,9 @@ docker compose --profile s18 exec spark python practica/generar_referencia_s17.p
 docker compose --profile s18 exec spark python practica/inyectar_deriva.py
 docker compose --profile s18 exec spark python pipeline/refinada_spark.py --carpeta _deriva --salida _deriva/refinada_spark --bitacora _deriva/bitacora_refinada_spark.jsonl   # termina con codigo 1 a proposito
 
-# 2. (Opcional: el repositorio ya trae el resultado) Ejecutar el cuaderno de la practica con EQUIPO = equipo-1:
+# 2. Ejecutar el cuaderno de la practica (ya tiene EQUIPO = equipo-1): regenera bitacora_capas.jsonl, comparacion.csv,
+#    hipotesis_s18.json y las capas consolidada_elt/ y tablero_etl/ (unos 70 s). Es OBLIGATORIO despues del paso 1:
+#    el paso 1 reescribe refinada_spark/ con archivos de nombre nuevo, y la verificacion compara el arbol con la bitacora.
 docker compose --profile s18 exec -w /proyecto/practica spark jupyter nbconvert --to notebook --execute --inplace BiD_S18_P4_cuaderno_v1.ipynb
 
 # 3. Verificacion de la etapa
@@ -96,7 +98,7 @@ El comando trabaja sobre una copia de la salida (`_copias_reproceso/consumo_dia_
 
 - **Ampliación y ventana de reproceso:** 348 medidores, 120 días y 1 002 240 lecturas. Sector dominante S-SUR (120 medidores, 34,5 %). Ventana del 2024-01-09 al 2024-01-14.
 - **Qué producto quedó en ETL y cuál en ELT:** **los dos en ELT**. En la bitácora, consumo lee 1 382 744 B y presión 401 505 B, frente a 54 371 830 B del ETL por producto. Cambiaría la decisión que la preparación no existiera ($K$ = 113 MB con dos lecturas de la cruda): con 2 productos fijos y reglas estables, el ETL de una pasada sería más barato.
-- **Pasos que hubo que agregar a este archivo para que el clon funcione:** la regeneración de `datalake_equipo/cruda` y `refinada` con el generador (paso 1), porque no se versionan.
+- **Pasos que hubo que agregar a este archivo para que el clon funcione:** (1) la regeneración de `datalake_equipo/cruda` y `refinada` con el generador (paso 1), porque no se versionan; y (2) dejar **obligatoria** la ejecución del cuaderno (paso 2). En la prueba desde un clon limpio, saltarse el paso 2 dejó `t18` en 17 de 18: la comprobación del lago intacto compara el árbol de `refinada_spark/` con el de la bitácora, y el paso 1 lo reescribe con nombres de archivo nuevos.
 
 ## 5. Reproducir un producto en otro computador
 
