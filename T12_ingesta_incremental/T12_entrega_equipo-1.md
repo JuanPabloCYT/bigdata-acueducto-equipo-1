@@ -22,7 +22,7 @@
 
 ## 1. El script y las dos tablas
 
-- **Ruta del script de ingesta:** `practica/ingesta_incremental.py`. Trae las funciones `ingest_lote` (incremental) y `reprocesar_ventana` (reapertura de ventana), las mismas del cuaderno `practica/BiD_S12_P4_cuaderno_v3.ipynb`.
+- **Ruta del script de ingesta:** `T12_ingesta_incremental/ingesta_incremental.py` (copia en `pipeline/ingesta_incremental.py`). Trae las funciones `ingest_lote` (incremental) y `reprocesar_ventana` (reapertura de ventana), las mismas del cuaderno `practica/BiD_S12_P4_cuaderno_v3.ipynb`.
 - **Nombre de la tabla de staging:** `stg_lecturas`. Es el nombre exacto, con clave primaria `(meter_id, "timestamp")`.
 - **Nombre de la tabla de control de estado:** `estado_ingesta`. Es el nombre exacto, con una fila por sector.
 - **Filas cargadas en `stg_lecturas` tras la primera corrida:** **888**: S-NORTE 240, S-SUR 216, S-ESTE 216 y S-OESTE 216. La suma de `consumo_m3` es 141,897 m³.
@@ -59,6 +59,8 @@ Corrimos también el lote del día 2: la marca avanzó a `2024-06-02 23:00:00` y
 ## 4. Instrucciones de reproducción
 
 Requisitos: Docker Desktop, Python 3.11 o superior y las dependencias de `practica/requirements.txt`.
+
+0. Extraer el paquete base de la sesión (`unzip BiD_S12_proyecto_base_v2.zip -d ~/proyectos/s12 && cd ~/proyectos/s12`), que no se versiona en el repositorio. Copiar a su carpeta `practica/` los archivos `ingesta_incremental.py` y `BiD_S12_P4_cuaderno_v3.ipynb` de `T12_ingesta_incremental/`.
 
 1. Desde la raíz del paquete, levantar PostgreSQL: `docker compose --profile s12 up -d`. Esperar a que `docker ps` muestre el contenedor `acueducto_postgres_s12` como `healthy`.
 2. Instalar las dependencias, de preferencia en un entorno virtual: `pip install -r practica/requirements.txt`.
@@ -106,7 +108,7 @@ Requisitos: Docker Desktop, Python 3.11 o superior y las dependencias de `practi
 | Filas recuperadas por un segundo reproceso idéntico | 0 |
 | Marca de agua del sector antes y después del reproceso | `2024-06-01 23:00:00` / `2024-06-01 23:00:00` |
 
-**Archivo de evidencia del Nivel 2 (obligatorio):** `practica/evidencia_nivel2_equipo-1.md`, generado por la celda de evidencia del cuaderno. Sus cifras coinciden con las dos tablas anteriores.
+**Archivo de evidencia del Nivel 2 (obligatorio):** `T12_ingesta_incremental/evidencia_nivel2_equipo-1.md`, generado por la celda de evidencia del cuaderno. Sus cifras coinciden con las dos tablas anteriores.
 
 **Por qué el reproceso no duplica ni mueve la marca:** `reprocesar_ventana` inserta la ventana completa **sin** el filtro de marca y confía solo en `ON CONFLICT (meter_id, "timestamp") DO NOTHING`. Cada fila de la ventana, o ya existe y se ignora, o falta y se inserta: por eso entran exactamente las 30 del hueco y un segundo reproceso no inserta ninguna. Además, el reproceso **no actualiza `estado_ingesta`**, porque rellena el pasado y no cambia hasta dónde llegó la ingesta diaria. Lo que deja fuera son las **correcciones de valores ya cargados**: si la fuente reenvía una lectura con otro `consumo_m3`, `DO NOTHING` conserva el valor viejo. Ese caso exigiría `DO UPDATE` y una regla sobre qué versión prevalece.
 
@@ -120,7 +122,7 @@ Requisitos: Docker Desktop, Python 3.11 o superior y las dependencias de `practi
 
 ## 7. Memo del reto de diseño, Emprendimiento Sostenible (rúbrica: memo del reto de diseño)
 
-- **Ruta del memo en el repositorio:** `practica/memo_reto_reanudacion_equipo-1.md`
+- **Ruta del memo en el repositorio:** `T12_ingesta_incremental/memo_reto_reanudacion_equipo-1.md`
 - **$n_{total}$ (volumen acumulado real en `stg_lecturas` para la instancia del equipo):** 26.640 filas: 30 días × 37 medidores × 24 lecturas por día, a partir de 28.119 filas recibidas.
 - **$\Delta n$ (filas nuevas de un lote incremental típico de esta instancia):** 888 filas por día. El lote trae 939; 51 son copias del día anterior que no entran.
 - **Costo evitado ($C_{completa} - C_{incremental}$), con las unidades que tengan sentido:** **2,04 s de cómputo por corrida**: 2,119 s de recarga completa frente a 0,083 s de carga incremental, unas 25 veces menos. En filas movidas son **25.752 filas por corrida** (26.640 − 888). Acumulado en 30 noches, son 412.920 filas con recargas completas frente a 26.640 con carga incremental, 15,5 veces menos. Con $c_{fila}$ ≈ 80 µs, una recarga de las 576.000 lecturas del modelo de referencia tardaría unos 46 s, frente a unos 0,08 s de un lote incremental.
