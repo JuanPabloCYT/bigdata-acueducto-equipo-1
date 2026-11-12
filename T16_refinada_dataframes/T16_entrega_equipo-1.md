@@ -162,11 +162,11 @@ La base también reconcilia contra `consolidada_spark/` de nuestra T15: 480 de 4
 
 | Etapa | Comando | Resultado esperado | Commit y resultado obtenido (última línea y las que difieran) |
 |---|---|---|---|
-| T12 · Ingesta incremental | `python pipeline/verificar_etapa.py --etapa t12` (perfil `s12` arriba) | `Etapa t12: APROBADA (4 de 4 comprobaciones, N s)` | VERIF_T12 |
-| T13 · Conector de la API | `python pipeline/verificar_etapa.py --etapa t13` (perfil `s12` arriba) | `Etapa t13: APROBADA (5 de 5 comprobaciones, N s)` | VERIF_T13 |
-| T14 · Captura de cambios | `python pipeline/verificar_etapa.py --etapa t14` (perfil `s12` arriba) | `Etapa t14: APROBADA (3 de 3 comprobaciones, N s)` | VERIF_T14 |
-| T15 · Carga con Spark | `docker compose --profile s16 exec spark python pipeline/verificar_etapa.py --etapa t15` | `Etapa t15: APROBADA (6 de 6 comprobaciones, N s)` | VERIF_T15 |
-| T16 · Capa refinada | `docker compose --profile s16 exec spark python pipeline/verificar_etapa.py --etapa t16` | `Etapa t16: APROBADA (15 de 15 comprobaciones, N s)` | VERIF_T16 |
+| T12 · Ingesta incremental | `python pipeline/verificar_etapa.py --etapa t12` (perfil `s12` arriba) | `Etapa t12: APROBADA (4 de 4 comprobaciones, N s)` | `135dd06` · `Etapa t12: APROBADA (4 de 4 comprobaciones, 0.4 s)` |
+| T13 · Conector de la API | `python pipeline/verificar_etapa.py --etapa t13` (perfil `s12` arriba) | `Etapa t13: APROBADA (5 de 5 comprobaciones, N s)` | `135dd06` · `Etapa t13: APROBADA (5 de 5 comprobaciones, 0.1 s)` |
+| T14 · Captura de cambios | `python pipeline/verificar_etapa.py --etapa t14` (perfil `s12` arriba) | `Etapa t14: APROBADA (3 de 3 comprobaciones, N s)` | `135dd06` · `Etapa t14: APROBADA (3 de 3 comprobaciones, 0.1 s)` |
+| T15 · Carga con Spark | `docker compose --profile s16 exec spark python pipeline/verificar_etapa.py --etapa t15` | `Etapa t15: APROBADA (6 de 6 comprobaciones, N s)` | `135dd06` · `Etapa t15: APROBADA (6 de 6 comprobaciones, 0.3 s)` (desde un clon limpio: 0.4 s) |
+| T16 · Capa refinada | `docker compose --profile s16 exec spark python pipeline/verificar_etapa.py --etapa t16` | `Etapa t16: APROBADA (15 de 15 comprobaciones, N s)` | `135dd06` · `Etapa t16: APROBADA (15 de 15 comprobaciones, 0.7 s)` (desde un clon limpio: 0.8 s) |
 
 Nota sobre T12 a T14: el verificador comprueba las tablas de **referencia** del paquete (base `acueducto`, con 1 200, 90 y 94 filas). Las cifras de nuestra instancia `equipo-1` están en las bases propias (`acueducto_equipo_1`) y en las evidencias de cada tarea: 888/1 776 lecturas, 99 medidores y 102 suscriptores.
 
@@ -197,9 +197,9 @@ El bloque de la plantilla está copiado y completado en `README.md`, en la raíz
 
 | Dato | Valor |
 |---|---|
-| Carpeta nueva usada para el clon (fuera de su copia de trabajo) y commit clonado | CLON_CARPETA |
-| Duración total de la secuencia del README (segundos) y última línea de la verificación de la etapa T16 | CLON_RESULTADO |
-| Pasos que hubo que agregar al README para que funcionara (y quedaron escritos en él) | CLON_PASOS |
+| Carpeta nueva usada para el clon (fuera de su copia de trabajo) y commit clonado | `~/proyectos/clon_prueba` (carpeta nueva, fuera de la copia de trabajo) · commit `135dd06` |
+| Duración total de la secuencia del README (segundos) y última línea de la verificación de la etapa T16 | 125 s para la secuencia completa del README (imagen ya construida) · `Etapa t16: APROBADA (15 de 15 comprobaciones, 0.8 s)` |
+| Pasos que hubo que agregar al README para que funcionara (y quedaron escritos en él) | Dos pasos, que quedaron escritos en el README: (1) regenerar `datalake_equipo/cruda` y `refinada` con el generador, porque no se versionan; (2) dejar obligatoria la ejecución del cuaderno de T18 (paso 2), porque sin él `t18` quedó en 17 de 18 (la comprobación del lago compara el árbol de `refinada_spark/` con la bitácora). `t16` no necesitó pasos adicionales |
 
 ---
 

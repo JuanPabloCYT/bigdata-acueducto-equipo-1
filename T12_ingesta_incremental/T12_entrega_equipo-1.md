@@ -1,7 +1,7 @@
 # T12 · La ingesta de su instancia del acueducto, hecha para repetirse sin duplicar
 
-**Equipo:** [completar: nombre del equipo]
-**Integrantes:** [completar: tres integrantes]
+**Equipo:** equipo-1 (trabajo individual)
+**Integrantes:** Juan Pablo Castro
 **Proyecto:** Plataforma de datos del acueducto
 **Identificador de equipo (`--equipo`):** `equipo-1`
 **Motor usado:** PostgreSQL 16 (perfil `s12` de Docker Compose, contenedor `acueducto_postgres_s12`), base propia del equipo `acueducto_equipo_1`
@@ -140,7 +140,7 @@ Usamos **Claude Code (Anthropic)** como asistente en estas partes del trabajo:
 - Escritura del script `ingesta_incremental.py`.
 - Primera redacción de los textos de decisión de los niveles 2 y 3, del memo del reto y de este documento.
 
-Todas las cifras salen de ejecutar el cuaderno y el script contra nuestra instancia (`equipo-1`) en PostgreSQL. [completar: describan qué revisaron, ajustaron o redactaron ustedes, por ejemplo la verificación de cifras o la reescritura de los textos de decisión.]
+Todas las cifras salen de ejecutar el cuaderno y el script contra nuestra instancia (`equipo-1`) en PostgreSQL. La revisión de las cifras y de los textos es responsabilidad del autor.
 
 ---
 
@@ -153,7 +153,7 @@ Todas las cifras salen de ejecutar el cuaderno y el script contra nuestra instan
 - [x] La prueba de doble ejecución de la sección 2 muestra el mismo conteo antes y después de la segunda corrida.
 - [x] `estado_ingesta` refleja la marca de agua actualizada después de cada corrida exitosa, sin quedar en `NULL` ni retroceder.
 - [x] El reproceso de ventana de la sección 6 recupera exactamente las filas borradas del hueco, un segundo reproceso recupera 0 y la marca de agua no se movió. El archivo `evidencia_nivel2_<equipo>.md` está adjunto y coincide con esas cifras.
-- [ ] El código está versionado en el repositorio del equipo, con el identificador de `--equipo` usado y las instrucciones de la sección 4.
+- [x] El código está versionado en el repositorio del equipo (`T12_ingesta_incremental/` y `pipeline/ingesta_incremental.py`), con el identificador de `--equipo` usado y las instrucciones de la sección 4.
 
 **Rúbrica (calidad de las decisiones documentadas).**
 

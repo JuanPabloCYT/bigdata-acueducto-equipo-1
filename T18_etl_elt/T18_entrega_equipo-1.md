@@ -159,8 +159,8 @@
 
 ### 8.1 Índice de evidencias
 
-- **Ruta del índice y salida de la fila de `t18`:** `indice_evidencias.md` en la raíz del repositorio. Salida: VERIF_T18
-- **Etapas cuya salida difiere de la esperada:** VERIF_DIFERENCIAS
+- **Ruta del índice y salida de la fila de `t18`:** `indice_evidencias.md` en la raíz del repositorio. Salida: `Etapa t18: APROBADA (18 de 18 comprobaciones, 2.6 s)`, en el commit `135dd06`
+- **Etapas cuya salida difiere de la esperada:** ninguna. T12 a T14 verifican las tablas de referencia del paquete y aprueban; T17 y T18 se verifican con `--volumen ampliacion`
 
 ### 8.2 Reparto por integrante
 
@@ -176,9 +176,9 @@
 
 ### 8.4 README del repositorio
 
-- **De dónde sale `datalake/` y pasos agregados:** **opción B**: `datalake/` se extrae del paquete base y la ampliación se regenera con el generador. Pasos agregados: CLON_PASOS
+- **De dónde sale `datalake/` y pasos agregados:** **opción B**: `datalake/` se extrae del paquete base y la ampliación se regenera con el generador. Pasos agregados: (1) regenerar `datalake_equipo/cruda` y `refinada` con el generador; (2) el cuaderno como paso obligatorio después del paso 1: sin él, `t18` quedó en 17 de 18, porque el paso 1 reescribe `refinada_spark/` y la comprobación del lago compara su árbol con la bitácora
 - **Sección del README con el procedimiento de reproceso por ventana:** "Reprocesar una ventana de días (T18)".
-- **Resultado de `verificar_etapa.py --etapa t18` desde el clon limpio:** CLON_T18
+- **Resultado de `verificar_etapa.py --etapa t18` desde el clon limpio:** `Etapa t18: APROBADA (18 de 18 comprobaciones, 3.0 s)` (clon limpio del commit `135dd06`, secuencia completa en 125 s)
 
 ---
 

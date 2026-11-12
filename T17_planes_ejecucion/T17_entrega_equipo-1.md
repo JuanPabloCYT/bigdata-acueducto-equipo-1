@@ -93,8 +93,8 @@
 
 ### 7.1 Índice de evidencias
 
-- **Ruta del índice y salida de la fila de `t17`:** `indice_evidencias.md` en la raíz del repositorio. Salida: VERIF_T17
-- **Etapas cuya salida difiere de la esperada, con la explicación:** VERIF_DIFERENCIAS
+- **Ruta del índice y salida de la fila de `t17`:** `indice_evidencias.md` en la raíz del repositorio. Salida: `Etapa t17: APROBADA (18 de 18 comprobaciones, 0.2 s)`, en el commit `135dd06`
+- **Etapas cuya salida difiere de la esperada, con la explicación:** ninguna. T12 a T14 verifican las tablas de referencia del paquete y aprueban; las cifras de `equipo-1` están en las evidencias de cada tarea (nota del índice)
 
 ### 7.2 Reparto por integrante
 
@@ -110,8 +110,8 @@
 
 ### 7.4 README del repositorio
 
-- **De dónde sale `datalake/` y pasos agregados:** **opción B**: `datalake/` se extrae del paquete base (el README trae el comando `unzip`), y la ampliación se regenera con el generador. Pasos agregados: CLON_PASOS
-- **Resultado de `verificar_etapa.py --etapa t17` desde el clon limpio:** CLON_T17
+- **De dónde sale `datalake/` y pasos agregados:** **opción B**: `datalake/` se extrae del paquete base (el README trae el comando `unzip`), y la ampliación se regenera con el generador. Pasos agregados: la regeneración de `datalake_equipo/cruda` y `refinada` con el generador, y el cuaderno de T18 como paso obligatorio (ver la sección 4 del README)
+- **Resultado de `verificar_etapa.py --etapa t17` desde el clon limpio:** `Etapa t17: APROBADA (18 de 18 comprobaciones, 0.2 s)` (clon limpio del commit `135dd06`, en `~/proyectos/clon_prueba`)
 
 ---
 
